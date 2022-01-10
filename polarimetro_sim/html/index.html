@@ -4,16 +4,27 @@
   <link rel = "stylesheet" href = "styles.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body onload="initPola()">
+<body>
 <div class="slidecontainer">
-  <input type="range" min="-1800" max="1800" value="0" class="slider" id="analizador">
+  <input type="range" min="-18000" max="18000" value="0" class="slider" id="analizador">
   <p>Analizador: <span id="analizadorValue"></span></p>
 </div>
 <div class="slidecontainer">
-<input type="range" min="-1800" max="1800" value="450" class="slider" id="polarizador">
+<input type="range" min="-18000" max="18000" value="4500" class="slider" id="polarizador">
 <p>Polarizador: <span id="polarizadorValue"></span></p>
 </div>
+
 <canvas id="canvas" width =500 height=500></canvas>
+<br><br>
+
+<label for="conc">Concentración (g/mL):</label>
+<input type="decimal" id="conc" name="conc"><br><br>
+
+<label for="podRotEsp">Poder rotatorio específico (° mL dm/g):</label>
+<input type="decimal" id="podRotEsp" name="podRotEsp"><br><br>
+
+<input type="button" value="Actualizar" onclick="putSample()">
+
 <script src="index.js"></script>
 </body>
 </html>
