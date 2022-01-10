@@ -76,4 +76,3 @@ var y = 250;
 initPola(outputAnaliz, outputPola, analizador, polarizador, poderRotatorio, ctx, canvas);
 analizador.oninput = refreshField;
 polarizador.oninput = refreshField;
-//actualizar.onclick = putSample();
