@@ -51,8 +51,8 @@ refreshField = function() {
 
 function putSample(){
     var concentracion = document.getElementById("conc").value
-    var podRotEsp = document.querySelector('input[name="muestra"]:checked').value;
-    //var podRotEsp = document.getElementsByName("muestra")[0].value
+    //var podRotEsp = document.querySelector('input[name="muestra"]:checked').value;
+    var podRotEsp = document.getElementById("muestra").value
     poderRotatorio = 2 * concentracion * podRotEsp
     initPola(outputAnaliz, outputPola, analizador, polarizador, poderRotatorio, ctx, canvas);
 

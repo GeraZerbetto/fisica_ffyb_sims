@@ -35,14 +35,12 @@
     <label for="conc">Concentración (g/mL):</label>
     <input type="decimal" id="conc" name="conc" /><br /><br />
 
-    <form>
-      <input type="radio" id="sacarosa" name="muestra" value="66.50" />
-      <label for="sacarosa">Sacarosa</label><br />
-      <input type="radio" id="fructosa" name="muestra" value="-92.4" />
-      <label for="fructosa">Fructosa</label><br />
-      <input type="radio" id="azucar_comercial" name="muestra" value="59.5" />
-      <label for="azucar_comercial">Azucar comercial</label><br />
-    </form>
+    <label for="muestra">Elegí una muestra:</label>
+    <select name="muestra" id="muestra">
+      <option value="66.50">Sacarosa</option>
+      <option value="-92.4">Fructosa</option>
+      <option value="59.5">Azúcar comercial</option>
+    </select>
 
     <input type="button" value="Actualizar" onclick="putSample()" />
 
@@ -100,10 +98,10 @@
 
       function putSample() {
         var concentracion = document.getElementById("conc").value;
-        var podRotEsp = document.querySelector(
+        /*var podRotEsp = document.querySelector(
           'input[name="muestra"]:checked'
-        ).value;
-        //var podRotEsp = document.getElementsByName("muestra")[0].value
+        ).value;*/
+        var podRotEsp = document.getElementById("muestra").value
         poderRotatorio = 2 * concentracion * podRotEsp;
         initPola(
           outputAnaliz,
