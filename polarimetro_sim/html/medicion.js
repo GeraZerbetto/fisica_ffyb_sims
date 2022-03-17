@@ -1,30 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body onload="initPola()">
-<div class="slidecontainer">
-  <input type="range" min="-18000" max="18000" value="0" class="slider" id="analizador" style="width: 500px;">
-  <p>Analizador: <span id="analizadorValue"></span></p>
-</div>
-<div class="slidecontainer">
-<input type="range" min="-18000" max="18000" value="4500" class="slider" id="polarizador" style="width: 500px;">
-<p>Polarizador: <span id="polarizadorValue"></span></p>
-</div>
-<canvas id="canvas" width =500 height=500></canvas>
-
-<br><br>
-
-<label for="conc">Concentración (g/mL):</label>
-<input type="decimal" id="conc" name="conc"><br><br>
-
-<label for="podRotEsp">Poder rotatorio específico (° mL dm/g):</label>
-<input type="decimal" id="podRotEsp" name="podRotEsp"><br><br>
-
-<input type="button" value="Actualizar" onclick="putSample()">
-
-<script>
 function initPola(outAn, outPol, anVal, polVal, podRot, context, canvas){
     outAn.innerHTML = anVal.value/100;
     outPol.innerHTML = polVal.value/100;
@@ -78,7 +51,8 @@ refreshField = function() {
 
 function putSample(){
     var concentracion = document.getElementById("conc").value
-    var podRotEsp = document.getElementById("podRotEsp").value
+    var podRotEsp = document.querySelector('input[name="muestra"]:checked').value;
+    //var podRotEsp = document.getElementsByName("muestra")[0].value
     poderRotatorio = 2 * concentracion * podRotEsp
     initPola(outputAnaliz, outputPola, analizador, polarizador, poderRotatorio, ctx, canvas);
 
@@ -103,6 +77,3 @@ var y = 250;
 initPola(outputAnaliz, outputPola, analizador, polarizador, poderRotatorio, ctx, canvas);
 analizador.oninput = refreshField;
 polarizador.oninput = refreshField;
-</script>
-</body>
-</html>

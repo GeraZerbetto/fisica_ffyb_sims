@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body onload="initPola()">
+    <div class="slidecontainer">
+      <input
+        type="range"
+        min="-18000"
+        max="18000"
+        value="0"
+        class="slider"
+        id="analizador"
+        style="width: 500px"
+      />
+      <p>Analizador: <span id="analizadorValue"></span></p>
+    </div>
+    <div class="slidecontainer">
+      <input
+        type="range"
+        min="-18000"
+        max="18000"
+        value="4500"
+        class="slider"
+        id="polarizador"
+        style="width: 500px"
+      />
+      <p>Polarizador: <span id="polarizadorValue"></span></p>
+    </div>
+    <canvas id="canvas" width="500" height="500"></canvas>
+
+    <br /><br />
+
+    <label for="conc">Concentración (g/mL):</label>
+    <input type="decimal" id="conc" name="conc" /><br /><br />
+
+    <label for="podRotEsp">Poder rotatorio específico (° mL dm/g):</label>
+    <input type="decimal" id="podRotEsp" name="podRotEsp" /><br /><br />
+
+    <input type="button" value="Actualizar" onclick="putSample()" />
+
+    <script>
+      function initPola(outAn, outPol, anVal, polVal, podRot, context, canvas) {
+        outAn.innerHTML = anVal.value / 100;
+        outPol.innerHTML = polVal.value / 100;
+        context.fillStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        alpha = calculateAlpha(anVal, polVal, podRot);
+        makeCircle(x, y, alpha.izq, Math.PI / 2, (3 * Math.PI) / 2, ctx);
+        makeCircle(x, y, alpha.der, (3 * Math.PI) / 2, Math.PI / 2, ctx);
+      }
+
+      function degrees_to_radians(degrees) {
+        var pi = Math.PI;
+        return degrees * (pi / 180);
+      }
+
+      function calculateAlpha(analizador, polarizador, podRot) {
+        analiz_deg = analizador.value / 100;
+        pola_deg = polarizador.value / 100;
+        retard_deg = -pola_deg + podRot;
+
+        deg_net_angle = pola_deg - analiz_deg + podRot;
+        deg_retard_angle = retard_deg - analiz_deg;
+
+        rad_angle = degrees_to_radians(deg_net_angle);
+        retard_rad = degrees_to_radians(deg_retard_angle);
+        izq = Math.cos(rad_angle) ** 2;
+        der = Math.cos(retard_rad) ** 2;
+        return {
+          izq,
+          der,
+        };
+      }
+
+      function makeCircle(x, y, alpha, start, end, canvas) {
+        canvas.beginPath();
+        string = `rgba(255,255,255,${alpha})`;
+        canvas.arc(x, y, 200, start, end);
+        canvas.fillStyle = string;
+        canvas.fill();
+      }
+
+      refreshField = function () {
+        outputAnaliz.innerHTML = analizador.value / 100;
+        outputPola.innerHTML = polarizador.value / 100;
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        alpha = calculateAlpha(analizador, polarizador, poderRotatorio);
+        makeCircle(x, y, alpha.izq, Math.PI / 2, (3 * Math.PI) / 2, ctx);
+        makeCircle(x, y, alpha.der, (3 * Math.PI) / 2, Math.PI / 2, ctx);
+      };
+
+      function putSample() {
+        var concentracion = document.getElementById("conc").value;
+        var podRotEsp = document.getElementById("podRotEsp").value;
+        poderRotatorio = 2 * concentracion * podRotEsp;
+        initPola(
+          outputAnaliz,
+          outputPola,
+          analizador,
+          polarizador,
+          poderRotatorio,
+          ctx,
+          canvas
+        );
+
+        console.log(poderRotatorio);
+      }
+
+      var analizador = document.getElementById("analizador");
+      var outputAnaliz = document.getElementById("analizadorValue");
+      var polarizador = document.getElementById("polarizador");
+      var outputPola = document.getElementById("polarizadorValue");
+      var poderRotatorio = 0.0;
+      var actualizar = document.getElementById("submit");
+
+      var canvas = document.getElementById("canvas");
+      var ctx = canvas.getContext("2d");
+      var x = 250;
+      var y = 250;
+
+      initPola(
+        outputAnaliz,
+        outputPola,
+        analizador,
+        polarizador,
+        poderRotatorio,
+        ctx,
+        canvas
+      );
+      analizador.oninput = refreshField;
+      polarizador.oninput = refreshField;
+    </script>
+  </body>
+</html>
