@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
-  <body onload="initPola()">
+  <body>
     <div class="slidecontainer">
       <input
         type="range"
@@ -102,7 +102,7 @@
 
       function makeCircle(x, y, alpha, start, end, canvas) {
         canvas.beginPath();
-        string = `rgba(255,255,255,${alpha})`;
+        string = `rgba(255,160,76,${alpha})`;
         canvas.arc(x, y, 200, start, end);
         canvas.fillStyle = string;
         canvas.fill();
@@ -125,11 +125,16 @@
         var podRotEsp = document.getElementById("muestra").value;
         desvEst = 3.0;
         poderRotatorio = 2 * concentracion * podRotEsp;
-        poderRotMedido = randn_bm2(
-          poderRotatorio - desvEst,
-          poderRotatorio + desvEst,
-          1
-        );
+        if ((poderRotatorio > 0.0001)) {
+          poderRotMedido = randn_bm2(
+            poderRotatorio - desvEst,
+            poderRotatorio + desvEst,
+            1
+          );
+        } else {
+          poderRotMedido = 0.0;
+        }
+        document.getElementById("analizador").value = 0.0;
         initPola(
           outputAnaliz,
           outputPola,
@@ -148,7 +153,7 @@
       var polarizador = document.getElementById("polarizador");
       var outputPola = document.getElementById("polarizadorValue");
       var poderRotatorio = 0.0;
-      var actualizar = document.getElementById("submit");
+      var poderRotMedido = 0.0;
 
       var canvas = document.getElementById("canvas");
       var ctx = canvas.getContext("2d");
