@@ -116,7 +116,7 @@
         var podRotEsp = document.getElementById("podRotEsp").value;
         desvEst = 3.0;
         poderRotatorio = 2 * concentracion * podRotEsp;
-        if ((poderRotatorio > 0.0001)) {
+        if ((Math.abs(poderRotatorio) > 0.0001)) {
           poderRotMedido = randn_bm2(
             poderRotatorio - desvEst,
             poderRotatorio + desvEst,

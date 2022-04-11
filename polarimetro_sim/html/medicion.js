@@ -78,7 +78,7 @@ function randn_bm2(min, max, skew) {
     var podRotEsp = document.getElementById("muestra").value;
     desvEst = 3.0;
     poderRotatorio = 2 * concentracion * podRotEsp;
-    if ((poderRotatorio > 0.0001)) {
+    if ((Math.abs(poderRotatorio) > 0.0001)) {
       poderRotMedido = randn_bm2(
         poderRotatorio - desvEst,
         poderRotatorio + desvEst,
