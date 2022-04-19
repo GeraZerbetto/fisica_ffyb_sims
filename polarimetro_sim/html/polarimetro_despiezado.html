@@ -62,7 +62,7 @@
       onchange="rotate(this.value)"
     /><br />
     transform: rotate(<span id="span1">7deg</span>); -->
-    <canvas id="despiezado" width="500" height="500"></canvas>
+    <canvas id="despiezado" width="800" height="300"></canvas>
     <script>
       function randn_bm2(min, max, skew) {
         let u = 0,
@@ -160,8 +160,8 @@
       }
 
       function drawLine(length, deg_angle, mid_x, mid_y) {
-        angle = degrees_to_radians((deg_angle + 9000)/100)
-
+        angle = degrees_to_radians(deg_angle/100 + 90)
+        console.log(angle)
         midPoint = {
           x: mid_x,
           y: mid_y,
@@ -176,7 +176,7 @@
           x: midPoint.x - Math.cos(angle)*length/2,
           y: midPoint.y - Math.sin(angle)*length/2,
         };
-        console.log(Math.cos(angle))
+        //console.log(Math.cos(angle))
         ctx_despiezado.translate(midPoint.x, midPoint.y);
         //ctx_despiezado.rotate(0.23 * Math.PI);
         ctx_despiezado.translate(-midPoint.x, -midPoint.y);
@@ -208,9 +208,18 @@
         alpha = calculateAlpha(analizador, polarizador, poderRotMedido);
         makeCircle(x, y, alpha.izq, Math.PI / 2, (3 * Math.PI) / 2, ctx);
         makeCircle(x, y, alpha.der, (3 * Math.PI) / 2, Math.PI / 2, ctx);
-        ctx_despiezado.fillStyle = "white"
-        
-        drawLine(100,polarizador,100,50)
+        ctx_despiezado.fillStyle = "white";
+        ctx_despiezado.fillRect(0, 0, cnv_despiezado.width, cnv_despiezado.height);
+        //console.log(alpha)
+        max_length = 50
+        drawLine(max_length,polarizador.value,50,50)
+        drawLine(max_length,polarizador.value,100,50)
+
+        drawLine(max_length,polarizador.value,200,50)
+        drawLine(max_length,-polarizador.value,250,50)
+
+        drawLine(alpha.izq*max_length,polarizador.value,400,50)
+        drawLine(alpha.der*max_length,polarizador.value,450,50)
       };
 
       function putSample() {
@@ -238,8 +247,8 @@
           ctx,
           canvas
         );
-        console.log(poderRotMedido);
-        console.log(poderRotatorio);
+        //console.log(poderRotMedido);
+        //console.log(poderRotatorio);
       }
 
       var analizador = document.getElementById("analizador");
