@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div class="slidecontainer">
+      <input
+        type="range"
+        min="-18000"
+        max="18000"
+        value="0"
+        class="slider"
+        id="analizador"
+        style="width: 500px"
+        step="1"
+      />
+      <p>Analizador: <span id="analizadorValue"></span></p>
+    </div>
+    <div class="slidecontainer">
+      <input
+        type="range"
+        min="-18000"
+        max="18000"
+        value="4500"
+        class="slider"
+        id="polarizador"
+        style="width: 500px"
+      />
+      <p>Polarizador: <span id="polarizadorValue"></span></p>
+    </div>
+    <canvas id="canvas" width="200" height="200"></canvas>
+
+    <br /><br />
+
+    <label for="conc">Concentración (g/mL):</label>
+    <input type="decimal" id="conc" name="conc" /><br /><br />
+
+    <label for="podRotEsp">Poder rotatorio específico (° mL dm/g):</label>
+    <input type="decimal" id="podRotEsp" name="podRotEsp" /><br /><br />
+
+    <input type="button" value="Actualizar" onclick="putSample()" /><br /><br />
+
+    <!--     <svg width="350" height="350" style="border: solid 1px black">
+      <line
+        id="div1"
+        x1="10"
+        y1="100"
+        x2="340"
+        y2="240"
+        stroke="black"
+        stroke-width="5px"
+      />
+    </svg>
+    Rotate: <br />
+    <input
+      type="range"
+      min="-360"
+      max="360"
+      value="7"
+      oninput="rotate(this.value)"
+      onchange="rotate(this.value)"
+    /><br />
+    transform: rotate(<span id="span1">7deg</span>); -->
+    <canvas id="despiezado" width="500" height="500"></canvas>
+    <script>
+      function randn_bm2(min, max, skew) {
+        let u = 0,
+          v = 0;
+        while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+        while (v === 0) v = Math.random();
+        let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+
+        num = num / 10.0 + 0.5; // Translate to 0 -> 1
+        if (num > 1 || num < 0) num = randn_bm(min, max, skew);
+        // resample between 0 and 1 if out of range
+        else {
+          num = Math.pow(num, skew); // Skew
+          num *= max - min; // Stretch to fill range
+          num += min; // offset to min
+        }
+        return num;
+      }
+
+      function initPola(outAn, outPol, anVal, polVal, podRot, context, canvas) {
+        outAn.innerHTML = anVal.value / 100;
+        outPol.innerHTML = polVal.value / 100;
+        context.fillStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        alpha = calculateAlpha(anVal, polVal, podRot);
+        makeCircle(x, y, alpha.izq, Math.PI / 2, (3 * Math.PI) / 2, ctx);
+        makeCircle(x, y, alpha.der, (3 * Math.PI) / 2, Math.PI / 2, ctx);
+      }
+
+      function degrees_to_radians(degrees) {
+        var pi = Math.PI;
+        return degrees * (pi / 180);
+      }
+
+      function calculateAlpha(analizador, polarizador, podRot) {
+        analiz_deg = analizador.value / 100;
+        pola_deg = polarizador.value / 100;
+        retard_deg = -pola_deg + podRot;
+
+        deg_net_angle = pola_deg - analiz_deg + podRot;
+        deg_retard_angle = retard_deg - analiz_deg;
+
+        rad_angle = degrees_to_radians(deg_net_angle);
+        retard_rad = degrees_to_radians(deg_retard_angle);
+        izq = Math.cos(rad_angle) ** 2;
+        der = Math.cos(retard_rad) ** 2;
+        return {
+          izq,
+          der,
+        };
+      }
+
+      function makeCircle(x, y, alpha, start, end, canvas) {
+        canvas.beginPath();
+        string = `rgba(255,160,76,${alpha})`;
+        canvas.arc(x, y, 50, start, end);
+        canvas.fillStyle = string;
+        canvas.fill();
+      }
+
+      function drawLineWithArrows(
+        ctx,
+        x0,
+        y0,
+        x1,
+        y1,
+        aWidth,
+        aLength,
+        arrowStart,
+        arrowEnd
+      ) {
+        var dx = x1 - x0;
+        var dy = y1 - y0;
+        var angle = Math.atan2(dy, dx);
+        var length = Math.sqrt(dx * dx + dy * dy);
+        //
+        ctx.translate(x0, y0);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(length, 0);
+        if (arrowStart) {
+          ctx.moveTo(aLength, -aWidth);
+          ctx.lineTo(0, 0);
+          ctx.lineTo(aLength, aWidth);
+        }
+        if (arrowEnd) {
+          ctx.moveTo(length - aLength, -aWidth);
+          ctx.lineTo(length, 0);
+          ctx.lineTo(length - aLength, aWidth);
+        }
+        //
+        ctx.stroke();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+      }
+
+      function drawLine(length, deg_angle, mid_x, mid_y) {
+        angle = degrees_to_radians((deg_angle + 9000)/100)
+
+        midPoint = {
+          x: mid_x,
+          y: mid_y,
+        };
+
+        startPoint = {
+          x: midPoint.x + Math.cos(angle)*length/2,
+          y: midPoint.y + Math.sin(angle)*length/2,
+        };
+
+        endPoint = {
+          x: midPoint.x - Math.cos(angle)*length/2,
+          y: midPoint.y - Math.sin(angle)*length/2,
+        };
+        console.log(Math.cos(angle))
+        ctx_despiezado.translate(midPoint.x, midPoint.y);
+        //ctx_despiezado.rotate(0.23 * Math.PI);
+        ctx_despiezado.translate(-midPoint.x, -midPoint.y);
+        //ctx_despiezado.moveTo(startPoint.x, startPoint.y);
+        //ctx_despiezado.lineTo(endPoint.x, endPoint.y);
+
+        drawLineWithArrows(
+          ctx_despiezado,
+          startPoint.x,
+          startPoint.y,
+          endPoint.x,
+          endPoint.y,
+          5,
+          5,
+          true,
+          true
+        );
+
+        //ctx_despiezado.stroke();
+        //ctx_despiezado.closePath();
+      }
+
+      refreshField = function () {
+        outputAnaliz.innerHTML = analizador.value / 100;
+        outputPola.innerHTML = polarizador.value / 100;
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        //alpha = calculateAlpha(analizador, polarizador, poderRotatorio)
+        alpha = calculateAlpha(analizador, polarizador, poderRotMedido);
+        makeCircle(x, y, alpha.izq, Math.PI / 2, (3 * Math.PI) / 2, ctx);
+        makeCircle(x, y, alpha.der, (3 * Math.PI) / 2, Math.PI / 2, ctx);
+        ctx_despiezado.fillStyle = "white"
+        
+        drawLine(100,polarizador,100,50)
+      };
+
+      function putSample() {
+        var concentracion = document.getElementById("conc").value;
+        var podRotEsp = document.getElementById("podRotEsp").value;
+        desvEst = 3.0;
+        poderRotatorio = 2 * concentracion * podRotEsp;
+        if (Math.abs(poderRotatorio) > 0.0001) {
+          poderRotMedido = randn_bm2(
+            poderRotatorio - desvEst,
+            poderRotatorio + desvEst,
+            1
+          );
+        } else {
+          poderRotMedido = 0.0;
+        }
+        document.getElementById("analizador").value = 0.0;
+
+        initPola(
+          outputAnaliz,
+          outputPola,
+          analizador,
+          polarizador,
+          poderRotMedido,
+          ctx,
+          canvas
+        );
+        console.log(poderRotMedido);
+        console.log(poderRotatorio);
+      }
+
+      var analizador = document.getElementById("analizador");
+      var outputAnaliz = document.getElementById("analizadorValue");
+      var polarizador = document.getElementById("polarizador");
+      var outputPola = document.getElementById("polarizadorValue");
+      var poderRotatorio = 0.0;
+      var poderRotMedido = 0.0;
+
+      var canvas = document.getElementById("canvas");
+      var cnv_despiezado = document.getElementById("despiezado");
+      var ctx = canvas.getContext("2d");
+      var ctx_despiezado = cnv_despiezado.getContext("2d");
+      var x = 100;
+      var y = 100;
+
+      initPola(
+        outputAnaliz,
+        outputPola,
+        analizador,
+        polarizador,
+        poderRotatorio,
+        ctx,
+        canvas
+      );
+      analizador.oninput = refreshField;
+      polarizador.oninput = refreshField;
+    </script>
+  </body>
+</html>
