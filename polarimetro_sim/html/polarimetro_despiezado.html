@@ -7,8 +7,8 @@
     <div class="slidecontainer">
       <input
         type="range"
-        min="-18000"
-        max="18000"
+        min="-9000"
+        max="9000"
         value="0"
         class="slider"
         id="analizador"
@@ -20,8 +20,8 @@
     <div class="slidecontainer">
       <input
         type="range"
-        min="-18000"
-        max="18000"
+        min="-9000"
+        max="9000"
         value="4500"
         class="slider"
         id="polarizador"
@@ -62,7 +62,7 @@
       onchange="rotate(this.value)"
     /><br />
     transform: rotate(<span id="span1">7deg</span>); -->
-    <canvas id="despiezado" width="800" height="300"></canvas>
+    <canvas id="despiezado" width="800" height="500"></canvas>
     <script>
       function randn_bm2(min, max, skew) {
         let u = 0,
@@ -159,21 +159,21 @@
         ctx.setTransform(1, 0, 0, 1, 0, 0);
       }
 
-      function drawLine(length, deg_angle, mid_x, mid_y) {
-        angle = degrees_to_radians(deg_angle/100 + 90)
+      function drawLine(length, deg_angle, mid_x, mid_y, start, end) {
+        angle = degrees_to_radians(deg_angle / 100 + 90);
         midPoint = {
           x: mid_x,
           y: mid_y,
         };
 
         startPoint = {
-          x: midPoint.x + Math.cos(angle)*length/2,
-          y: midPoint.y + Math.sin(angle)*length/2,
+          x: midPoint.x + (Math.cos(angle) * length) / 2,
+          y: midPoint.y + (Math.sin(angle) * length) / 2,
         };
 
         endPoint = {
-          x: midPoint.x - Math.cos(angle)*length/2,
-          y: midPoint.y - Math.sin(angle)*length/2,
+          x: midPoint.x - (Math.cos(angle) * length) / 2,
+          y: midPoint.y - (Math.sin(angle) * length) / 2,
         };
         ctx_despiezado.translate(midPoint.x, midPoint.y);
         //ctx_despiezado.rotate(0.23 * Math.PI);
@@ -189,12 +189,92 @@
           endPoint.y,
           5,
           5,
-          true,
-          true
+          start,
+          end
         );
 
         //ctx_despiezado.stroke();
         //ctx_despiezado.closePath();
+      }
+
+      function drawMarker(length, deg_angle, mid_x, mid_y, start, end) {
+        angle = degrees_to_radians(deg_angle / 100 + 90);
+        midPoint = {
+          x: mid_x,
+          y: mid_y,
+        };
+
+        startPoint = {
+          x: midPoint.x + (Math.cos(angle) * length) / 2,
+          y: midPoint.y + (Math.sin(angle) * length) / 2,
+        };
+
+        endPoint = {
+          x: midPoint.x + (Math.cos(angle) * length) / 2.5,
+          y: midPoint.y + (Math.sin(angle) * length) / 2.5,
+        };
+
+        startPoint_2 = {
+          x: midPoint.x - (Math.cos(angle) * length) / 2,
+          y: midPoint.y - (Math.sin(angle) * length) / 2,
+        };
+
+        endPoint_2 = {
+          x: midPoint.x - (Math.cos(angle) * length) / 2.5,
+          y: midPoint.y - (Math.sin(angle) * length) / 2.5,
+        };
+        ctx_despiezado.translate(midPoint.x, midPoint.y);
+        //ctx_despiezado.rotate(0.23 * Math.PI);
+        ctx_despiezado.translate(-midPoint.x, -midPoint.y);
+        //ctx_despiezado.moveTo(startPoint.x, startPoint.y);
+        //ctx_despiezado.lineTo(endPoint.x, endPoint.y);
+
+        drawLineWithArrows(
+          ctx_despiezado,
+          startPoint.x,
+          startPoint.y,
+          endPoint.x,
+          endPoint.y,
+          5,
+          5,
+          start,
+          end
+        );
+
+        drawLineWithArrows(
+          ctx_despiezado,
+          startPoint_2.x,
+          startPoint_2.y,
+          endPoint_2.x,
+          endPoint_2.y,
+          5,
+          5,
+          start,
+          end
+        );
+
+        //ctx_despiezado.stroke();
+        //ctx_despiezado.closePath();
+      }
+      function drawField(x, y, ctx) {
+        radius = 50;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0 * Math.PI, 2 * Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, parseFloat(y) + parseFloat(radius));
+        ctx.lineTo(x, parseFloat(y) - parseFloat(radius));
+        ctx.stroke();
+      }
+
+      function addText(ctx, x, y_offset, text) {
+        y_text = parseFloat(y_offset) + 80;
+        ctx.font = "11px Courier";
+        ctx.fillStyle = "black";
+        var lineheight = 15;
+        var lines = text.split("\n");
+        for (var i = 0; i < lines.length; i++)
+          ctx.fillText(lines[i], x, y_text + i * lineheight);
       }
 
       refreshField = function () {
@@ -207,24 +287,75 @@
         makeCircle(x, y, alpha.izq, Math.PI / 2, (3 * Math.PI) / 2, ctx);
         makeCircle(x, y, alpha.der, (3 * Math.PI) / 2, Math.PI / 2, ctx);
         ctx_despiezado.fillStyle = "white";
-        ctx_despiezado.fillRect(0, 0, cnv_despiezado.width, cnv_despiezado.height);
-        //console.log(alpha)
+        ctx_despiezado.fillRect(
+          0,
+          0,
+          cnv_despiezado.width,
+          cnv_despiezado.height
+        );
         max_length = 50;
-        drawLine(max_length,polarizador.value,50,50);
-        drawLine(max_length,polarizador.value,100,50);
+        y_offset = 100;
 
-        drawLine(max_length,polarizador.value,200,50);
-        drawLine(max_length,-polarizador.value,250,50);
+        drawLine(max_length, polarizador.value, 50, y_offset, true, true);
+        drawLine(max_length, polarizador.value, 100, y_offset, true, true);
+        drawMarker(
+          max_length * 2.5,
+          polarizador.value,
+          75,
+          y_offset,
+          false,
+          false
+        );
+        drawField(75, y_offset, ctx_despiezado);
+        addText(ctx_despiezado, 40, y_offset, "Salida del\npolarizador");
+
+        drawLine(max_length, polarizador.value, 200, y_offset, true, true);
+        drawLine(max_length, -polarizador.value, 250, y_offset, true, true);
+        drawField(225, y_offset, ctx_despiezado);
+        addText(
+          ctx_despiezado,
+          170,
+          y_offset,
+          "   Salida de la\nlámina retardadora"
+        );
+
         poderRotMedido_100 = poderRotMedido * 100;
-        angulo_izq_mtra = parseFloat(polarizador.value) + parseFloat(poderRotMedido_100);
-        angulo_der_mtra = parseFloat(-polarizador.value) + parseFloat(poderRotMedido_100);
-        console.log(angulo_der_mtra);
+        angulo_izq_mtra =
+          parseFloat(polarizador.value) + parseFloat(poderRotMedido_100);
+        angulo_der_mtra =
+          parseFloat(-polarizador.value) + parseFloat(poderRotMedido_100);
 
-        drawLine(max_length,angulo_izq_mtra,400,50)
-        drawLine(max_length,angulo_der_mtra,450,50)
-        
-        drawLine(alpha.izq*max_length,analizador.value,550,50)
-        drawLine(alpha.der*max_length,analizador.value,600,50)
+        drawLine(max_length, angulo_izq_mtra, 400, y_offset, true, true);
+        drawLine(max_length, angulo_der_mtra, 450, y_offset, true, true);
+        drawField(425, y_offset, ctx_despiezado);
+        addText(ctx_despiezado, 387, y_offset, "Salida de la\n  muestra");
+
+        drawLine(
+          alpha.izq * max_length,
+          analizador.value,
+          550,
+          y_offset,
+          true,
+          true
+        );
+        drawLine(
+          alpha.der * max_length,
+          analizador.value,
+          600,
+          y_offset,
+          true,
+          true
+        );
+        drawMarker(
+          max_length * 2.5,
+          analizador.value,
+          575,
+          y_offset,
+          false,
+          false
+        );
+        drawField(575, y_offset, ctx_despiezado);
+        addText(ctx_despiezado, 540, y_offset, "Salida del\nanalizador");
       };
 
       function putSample() {
@@ -252,9 +383,7 @@
           ctx,
           canvas
         );
-        refreshField()
-        //console.log(poderRotMedido);
-        //console.log(poderRotatorio);
+        refreshField();
       }
 
       var analizador = document.getElementById("analizador");
